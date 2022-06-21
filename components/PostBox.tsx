@@ -16,7 +16,11 @@ type FormData = {
   subreddit: string;
 };
 
-function PostBox() {
+type Props = {
+  subreddit?: string;
+};
+
+function PostBox({ subreddit }: Props) {
   const [imageBoxOpen, setImageBoxOpen] = useState<boolean>(false);
   const [addPost] = useMutation(ADD_POST, {
     refetchQueries: [GET_ALL_POSTS, "getPostList"],
@@ -39,7 +43,7 @@ function PostBox() {
       } = await client.query({
         query: GET_SUBREDDIT_BY_TOPIC,
         variables: {
-          topic: formData.subreddit,
+          topic: subreddit || formData.subreddit,
         },
       });
 
@@ -119,7 +123,11 @@ function PostBox() {
           className="flex-1 rounded-md bg-gray-50 p-2 pl-5 outline-none"
           type="text"
           placeholder={
-            session ? "Create a post by entering a title" : "Sign In to post"
+            session
+              ? subreddit
+                ? `Create a post in r/${subreddit}`
+                : "Create a post by entering a title"
+              : "Sign In to post"
           }
         />
         <PhotographIcon
@@ -142,15 +150,17 @@ function PostBox() {
             />
           </div>
 
-          <div className="flex items-center px-2">
-            <p className="min-w-[90px]">Subreddit:</p>
-            <input
-              className="m-2 flex-1 bg-blue-50 p-2 outline-none"
-              {...register("subreddit", { required: true })}
-              type="text"
-              placeholder="Optional..."
-            />
-          </div>
+          {!subreddit && (
+            <div className="flex items-center px-2">
+              <p className="min-w-[90px]">Subreddit:</p>
+              <input
+                className="m-2 flex-1 bg-blue-50 p-2 outline-none"
+                {...register("subreddit", { required: true })}
+                type="text"
+                placeholder="Optional..."
+              />
+            </div>
+          )}
           {imageBoxOpen && (
             <div className="flex items-center px-2">
               <p className="min-w-[90px]">Image URL:</p>
