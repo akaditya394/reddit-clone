@@ -119,7 +119,7 @@ function Post({ post }: Props) {
         <div className="p-3 pb-1">
           <div className="flex items-center space-x-2">
             <Avatar seed={post.subreddit[0].topic} />
-            <p className="text-xs text-gray-400">
+            <p className="truncate text-xs text-gray-400">
               <Link href={`/subreddit/${post.subreddit[0]?.topic}`}>
                 <span
                   className="font-bold text-black hover:text-blue-400
