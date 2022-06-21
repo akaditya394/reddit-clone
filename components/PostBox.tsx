@@ -113,7 +113,7 @@ function PostBox({ subreddit }: Props) {
   return (
     <form
       onSubmit={onSubmit}
-      className="p-2 sticky top-16 z-50 rounded-md border border-gray-300 bg-white"
+      className="p-2 sticky top-20 z-50 rounded-md border border-gray-300 bg-white"
     >
       <div className="flex items-center space-x-3">
         <Avatar />
