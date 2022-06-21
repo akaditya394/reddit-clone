@@ -14,7 +14,7 @@ mutation MyMutation(
         subreddit_id: $subreddit_id
         image: $image
         username: $username
-    )(
+    ){
         body
         created_at
         id
@@ -22,7 +22,7 @@ mutation MyMutation(
         subreddit_id
         title
         username
-    )
+    }
 }
 `;
 

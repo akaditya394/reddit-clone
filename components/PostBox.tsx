@@ -95,7 +95,13 @@ function PostBox() {
       setValue("postTitle", "");
       setValue("subreddit", "");
       toast.success("New post added", { id: notification });
-    } catch (error) {}
+    } catch (error) {
+      toast.error("oops! something went wrong!", {
+        id: notification,
+      });
+      console.log(error);
+      
+    }
   });
 
   const { data: session } = useSession();
