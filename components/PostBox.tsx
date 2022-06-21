@@ -3,6 +3,11 @@ import React, { useState } from "react";
 import Avatar from "./Avatar";
 import { LinkIcon, PhotographIcon } from "@heroicons/react/outline";
 import { FormState, useForm } from "react-hook-form";
+import { ADD_POST, ADD_SUBREDDIT } from "../graphql/mutations";
+import { useMutation } from "@apollo/client";
+import client from "../apollo-client";
+import { GET_SUBREDDIT_BY_TOPIC } from "../graphql/queries";
+import { toast } from "react-hot-toast";
 
 type FormData = {
   postTitle: string;
@@ -13,6 +18,8 @@ type FormData = {
 
 function PostBox() {
   const [imageBoxOpen, setImageBoxOpen] = useState<boolean>(false);
+  const [addPost] = useMutation(ADD_POST);
+  const [addSubreddit] = useMutation(ADD_SUBREDDIT);
   const {
     register,
     setValue,
@@ -23,11 +30,80 @@ function PostBox() {
 
   const onSubmit = handleSubmit(async (formData) => {
     console.log(formData);
+    const notification = toast.loading("Creating new post...");
+    try {
+      const {
+        data: { getSubredditListByTopic },
+      } = await client.query({
+        query: GET_SUBREDDIT_BY_TOPIC,
+        variables: {
+          topic: formData.subreddit,
+        },
+      });
+
+      const subredditExists = getSubredditListByTopic > 0;
+
+      if (!subredditExists) {
+        console.log("subreddit does not exist");
+
+        const {
+          data: { insertSubreddit: newSubreddit },
+        } = await addSubreddit({
+          variables: {
+            topic: formData.subreddit,
+          },
+        });
+
+        console.log("creating post", formData);
+        const image = formData.postImage || "";
+
+        const {
+          data: { insertPost: newPost },
+        } = await addPost({
+          variables: {
+            body: formData.postBody,
+            image: image,
+            subreddit_id: newSubreddit.id,
+            title: formData.postTitle,
+            username: session?.user?.name,
+          },
+        });
+
+        console.log("new post added", newPost);
+      } else {
+        console.log("using existing subreddit");
+        console.log(getSubredditListByTopic);
+
+        const image = formData.postImage || "";
+
+        const {
+          data: { inserPost: newPost },
+        } = await addPost({
+          variables: {
+            body: formData.postBody,
+            image: image,
+            subreddit_id: getSubredditListByTopic[0].id,
+            title: formData.postTitle,
+            username: session?.user?.name,
+          },
+        });
+
+        console.log("new post was added", newPost);
+      }
+      setValue("postBody", "");
+      setValue("postImage", "");
+      setValue("postTitle", "");
+      setValue("subreddit", "");
+      toast.success("New post added", { id: notification });
+    } catch (error) {}
   });
 
   const { data: session } = useSession();
   return (
-    <form onSubmit={onSubmit} className="p-2 sticky top-16 z-50 rounded-md border border-gray-300 bg-white">
+    <form
+      onSubmit={onSubmit}
+      className="p-2 sticky top-16 z-50 rounded-md border border-gray-300 bg-white"
+    >
       <div className="flex items-center space-x-3">
         <Avatar />
         <input
