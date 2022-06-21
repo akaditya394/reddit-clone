@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import PostBox from "../components/PostBox";
+import Feed from "../components/Feed" 
 
 const Home: NextPage = () => {
   return (
@@ -10,7 +11,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <PostBox />
-      <div className="flex" ></div>
+      <div className="flex" ><Feed /></div>
     </div>
   );
 };

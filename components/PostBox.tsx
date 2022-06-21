@@ -6,7 +6,7 @@ import { FormState, useForm } from "react-hook-form";
 import { ADD_POST, ADD_SUBREDDIT } from "../graphql/mutations";
 import { useMutation } from "@apollo/client";
 import client from "../apollo-client";
-import { GET_SUBREDDIT_BY_TOPIC } from "../graphql/queries";
+import { GET_ALL_POSTS, GET_SUBREDDIT_BY_TOPIC } from "../graphql/queries";
 import { toast } from "react-hot-toast";
 
 type FormData = {
@@ -18,7 +18,9 @@ type FormData = {
 
 function PostBox() {
   const [imageBoxOpen, setImageBoxOpen] = useState<boolean>(false);
-  const [addPost] = useMutation(ADD_POST);
+  const [addPost] = useMutation(ADD_POST, {
+    refetchQueries: [GET_ALL_POSTS, "getPostList"],
+  });
   const [addSubreddit] = useMutation(ADD_SUBREDDIT);
   const {
     register,
@@ -41,7 +43,7 @@ function PostBox() {
         },
       });
 
-      const subredditExists = getSubredditListByTopic > 0;
+      const subredditExists = getSubredditListByTopic.length > 0;
 
       if (!subredditExists) {
         console.log("subreddit does not exist");
@@ -100,7 +102,6 @@ function PostBox() {
         id: notification,
       });
       console.log(error);
-      
     }
   });
 
